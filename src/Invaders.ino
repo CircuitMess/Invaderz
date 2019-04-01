@@ -77,7 +77,7 @@ int delayBip;
 
 void setup() {
   Serial.begin(115200);
-  mp.begin();
+  mp.begin(0);
   mp.setResolution(1);
   mp.display.fillScreen(TFT_BLACK);
   mp.display.setFreeFont(TT1);
