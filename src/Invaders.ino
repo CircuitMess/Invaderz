@@ -2,7 +2,7 @@
     Invaderz
     Copyright (C) 2019 CircuitMess
 
-    Original game:
+    original game:
     Invaders by Yoda Zhang
     http://www.yodasvideoarcade.com/images/gamebuino-invaders.zip
 
@@ -28,7 +28,6 @@
 #include <MAKERphone.h>
 #include "Star.h"
 MAKERphone mp;
-# define Maxwhidth 74
 uint32_t pixelsTimer=0;
 bool pixelsState=0;
 String gamestatus;
@@ -69,6 +68,32 @@ int saucers;
 int saucertimer;
 int saucerwait;
 int delayBip;
+
+
+MPTrack *shootSound;
+MPTrack *invaderDestroyed;
+MPTrack *mainMusic;
+MPTrack *titleMusic;
+MPTrack *playerDestroyed;
+MPTrack *ufoSound;
+MPTrack *gameoverMusic;
+const char *highscoresPath = "/Invaderz/hiscores.sav";
+bool savePresent = 0;
+uint16_t tempScore = 0;
+String name = "";
+uint8_t cursor = 0;
+char key = NO_KEY;
+//----------------------------------------------------------------------------    
+// define images & sounds
+//----------------------------------------------------------------------------    
+extern const byte gamelogo[];
+extern const byte invader[8][7];
+extern const byte playership[3][6];
+extern const byte bunker[5][7];
+extern const byte bomb[2][6];
+extern const byte saucer[2][10];
+extern const int soundfx[8][8];
+
 /*
 //----------------------------------------------------------------------------
 // setup
