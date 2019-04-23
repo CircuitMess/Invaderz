@@ -4,6 +4,8 @@ A simple Space Invaders inspired game for MAKERphone.
 Based on the code from [Yoda Zhang](http://www.yodasvideoarcade.com/) - [Invaders](http://www.yodasvideoarcade.com/gamebuino.php). 
 
 Also using code for star field effect from [dfm's Star Field](https://github.com/dfm/Star-Field).
+![screenshot1](https://raw.githubusercontent.com/CircuitMess/Invaderz/master/screenshot1.bmp)
+![screenshot2](https://raw.githubusercontent.com/CircuitMess/Invaderz/master/screenshot2.bmp)
 #
 Copyright © 2019 CircuitMess
 
