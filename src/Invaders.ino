@@ -972,7 +972,6 @@ void setup() {
 	addOscillator(shoot);
 	addOscillator(destroyed);
 
-	enterInitials();
 	// shoot->play();
   // shootSound->setVolume(256*mp.volume/14);
   // invaderDestroyed->setVolume(256*mp.volume/14);
