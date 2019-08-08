@@ -1,5 +1,5 @@
 # Invaderz
-A simple Space Invaders inspired game for MAKERphone.
+A simple Space Invaders inspired game for CircuitMess Ringo.
 
 Based on the code from [Yoda Zhang](http://www.yodasvideoarcade.com/) - [Invaders](http://www.yodasvideoarcade.com/gamebuino.php). 
 
