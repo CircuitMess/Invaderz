@@ -715,12 +715,12 @@ void eraseData()
 		if (mp.buttons.released(BTN_B)) //BUTTON BACK
 		{
 			Serial.println("Go back");
-      mp.buttons.update();
+      		mp.buttons.update();
 			break;
 		}
 		if (mp.buttons.released(BTN_A)) // DELETE
 		{
-      mp.buttons.update();
+      		mp.buttons.update();
 			JsonArray &empty = mp.jb.createArray();
 			File file = SD.open(highscoresPath, "w");
 			empty.prettyPrintTo(file);
@@ -748,6 +748,22 @@ void dataDisplay()
 	File file = SD.open(highscoresPath);
 	JsonArray &hiscores = mp.jb.parseArray(file);
 	file.close();
+	const char* nameArray[6];
+	memset(nameArray, 0, 6);
+	uint16_t scoreArray[6];
+	memset(scoreArray, 0, 6);
+	uint16_t hiscoresSize = hiscores.size();
+	for(uint8_t i = 0; i < 6; i++)
+	{
+		for(JsonObject& element:hiscores)
+		{
+			if(element["Rank"] == i)
+			{
+				nameArray[i] = element["Name"];
+				scoreArray[i] = element["Score"];
+			}
+		}
+	}
 	while(1)
 	{
 		mp.display.fillScreen(TFT_BLACK);
@@ -761,13 +777,7 @@ void dataDisplay()
 		{
 			mp.display.setCursor(24, i * 20);
 			if(i <= hiscores.size())
-			{
-				for(JsonObject& element:hiscores)
-				{
-					if(element["Rank"] == i)
-						mp.display.printf("%d.   %.3s    %04d", i, element["Name"].as<char*>(), element["Score"].as<uint16_t>());
-				}
-			}
+				mp.display.printf("%d.   %.3s    %04d", i, nameArray[i], scoreArray[i]);
 			else
 				mp.display.printf("%d.    ---   ----", i);
 		}
