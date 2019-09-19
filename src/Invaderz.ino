@@ -1,23 +1,18 @@
 /*
     Invaderz
     Copyright (C) 2019 CircuitMess
-
     original game:
     Invaders by Yoda Zhang
     http://www.yodasvideoarcade.com/images/gamebuino-invaders.zip
-
     Ported to MAKERphone by CircuitMess
-
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
-
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-
     You should have received a copy of the GNU General Public License along
     with this program; if not, write to the Free Software Foundation, Inc.,
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -744,7 +739,7 @@ void dataDisplay()
 	// removeTrack(titleMusic);
 	// removeTrack(invaderDestroyed);
 	// removeTrack(playerDestroyed);
-	
+	mp.jb.clear();
 	File file = SD.open(highscoresPath);
 	JsonArray &hiscores = mp.jb.parseArray(file);
 	file.close();
@@ -892,8 +887,8 @@ void enterInitials() {
   mp.textInput("");
   mp.textPointer = 0;
   while (!mp.buttons.released(BTN_A) || name.length() != 3) {
-    if(mp.update())
-      name = mp.textInput(name, 3);
+    mp.update();
+    name = mp.textInput(name, 3);
     if (millis() - elapsedMillis >= multi_tap_threshold) //cursor blinking routine
 		{
 			elapsedMillis = millis();
