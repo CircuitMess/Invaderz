@@ -44,7 +44,8 @@ int invaderxr;
 int invaderyr;
 int invadershotx[4];
 int invadershoty[4];
-int invadershotframe;
+bool invadershotframe = 0;
+bool pastInvaderShotFrame = 0;
 int invadershots;
 int invadershottimer;
 int bunkers[4];
@@ -83,7 +84,7 @@ char key = NO_KEY;
 #define STAR_COUNT 50            // Number of stars on the screen. Arduino UNO maxes out around 250.
 #define BACKGROUND_COLOR 0x0000   // Background color in hex. 0x0000 is black.
 #define STAR_SPEED_MIN 1          // Minimum movement in pixels per update. (value is inclusive)
-#define STAR_SPEED_MAX 3         // Maximum movement in pixels per update. (value is inclusive)
+#define STAR_SPEED_MAX 2         // Maximum movement in pixels per update. (value is inclusive)
 #define STAR_COLOR 0xffff  
 Star stars[STAR_COUNT]; 
 void starsSetup()
@@ -258,13 +259,13 @@ void newgame() {
 	shoty = -1;
 	deadcounter = -1;
 	saucers = -1;
-  // removeTrack(titleMusic);
-  // addTrack(mainMusic);
-  // mainMusic->play();
-  // addTrack(shootSound);
-  // addTrack(invaderDestroyed);
-  // addTrack(playerDestroyed);
-  starsSetup();
+	// removeTrack(titleMusic);
+	// addTrack(mainMusic);
+	// mainMusic->play();
+	// addTrack(shootSound);
+	// addTrack(invaderDestroyed);
+	// addTrack(playerDestroyed);
+	starsSetup();
 	for (int i = 0; i < 4; i++) {
 		invadershotx[i] = -1;
 		invadershoty[i] = -1;
@@ -275,15 +276,15 @@ void newgame() {
 void newlevel() {
 	invaderanz = 40;
 	invaderctr = 39;
-	invaderxr = 4;
-	invaderyr = 4;
+	invaderxr = 2;
+	invaderyr = 2;
 	checkdir = 0;
 	nextxdir = 4;
 	nextydir = 0;
 	yeahtimer = 0;
 	delayBip = 0;
-	invadershottimer = 60;
-	saucertimer = 240;
+	invadershottimer = 120;
+	saucertimer = 480;
 	int down = gamelevel;
 	if (gamelevel > 8) { down = 16*2; }
 	for (int i = 0; i < 8; i++) {
@@ -355,8 +356,8 @@ void handledeath() {
 void checkbuttons() {
 	if (shipx < 0) shipx = 0;
 
-	if (mp.buttons.repeat(BTN_LEFT, 1) && shipx > 0 && deadcounter == -1) { shipx-=2; }
-	if (mp.buttons.repeat(BTN_RIGHT, 1) and shipx < 143 and deadcounter == -1) { shipx+=2; }
+	if (mp.buttons.repeat(BTN_LEFT, 1) && shipx > 0 && deadcounter == -1) { shipx-=1; }
+	if (mp.buttons.repeat(BTN_RIGHT, 1) and shipx < 143 and deadcounter == -1) { shipx+=1; }
 
 	if (mp.buttons.pressed(BTN_A) and shotx == -1 and deadcounter == -1) {
 		shotx = shipx + 6;
@@ -388,9 +389,9 @@ void drawplayership() {
 //----------------------------------------------------------------------------
 void drawplayershot() {
 	if (shotx != -1) {
-		shoty = shoty - 4;
+		shoty = shoty - 2;
 		mp.display.drawLine(shotx, shoty, shotx, shoty + 6, TFT_YELLOW);
-    mp.display.drawLine(shotx+1, shoty, shotx+1, shoty + 6, TFT_YELLOW);
+    	mp.display.drawLine(shotx+1, shoty, shotx+1, shoty + 6, TFT_YELLOW);
 		if (shoty < 0) {
 			shotx = -1;
 			shoty = -1;
@@ -474,7 +475,7 @@ void invaderlogic() {
 
 		// release invadershoot
 		if (invadershottimer <= 0 and invadershots < gamelevel + 1 and invadershots < 4 and invadery[invaderctr] < 80) {
-			invadershottimer = 40 - gamelevel * 10;
+			invadershottimer = 120 - gamelevel * 10;
 			invadershots++;
 			int flag = 0;
 			for (int u = 0; u < 4; u++) {
@@ -525,22 +526,22 @@ void drawinvaders() {
 void invadershot() {
 	// handle invadershoot timer & framecounter
 	invadershottimer--;
-  
-	invadershotframe = ++invadershotframe % 2;
-
+	if(invadershotframe == pastInvaderShotFrame)
+		invadershotframe = !invadershotframe;
+	else
+		pastInvaderShotFrame = !pastInvaderShotFrame;
 	// move invadershots, draw & check collission
 	for (int i = 0; i < 4; i++) {
 		if (invadershotx[i] != -1) {
-			invadershoty[i] = invadershoty[i] + 2;
+			invadershoty[i] = invadershoty[i] + 1;
 			mp.display.drawBitmap(invadershotx[i], invadershoty[i], bomb[invadershotframe], TFT_RED, 2);
 
 			// check collission: invadershot & bunker
 			for (int u = 0; u < 4; u++) {
-        
 				checkl = 22 + u * 36;
-        checkr = 22 + u * 36 + 14;
-        checkt = 90;
-        checkb = 100;
+				checkr = 22 + u * 36 + 14;
+				checkt = 90;
+				checkb = 100;
 				if (bunkers[u] != -1 and invadershotx[i] + 1 >= checkl and invadershotx[i] <= checkr and invadershoty[i] + 3 >= checkt and invadershoty[i] <= checkb) {
 					bunkers[u]++;
 					if (bunkers[u] > 4) { bunkers[u] = -1; }
@@ -608,22 +609,21 @@ void saucerappears() {
 	if (saucertimer <= 0) {
 		saucertimer = 240;
 		if (infoshow == 1 and saucers == -1) {
-      // mainMusic->pause();
-      // removeTrack(mainMusic);
-      // addTrack(ufoSound);
-      // ufoSound->setSpeed(2);
-      // ufoSound->setRepeat(1);
-      // ufoSound->play();
-      
+			// mainMusic->pause();
+			// removeTrack(mainMusic);
+			// addTrack(ufoSound);
+			// ufoSound->setSpeed(2);
+			// ufoSound->setRepeat(1);
+			// ufoSound->play();
 			saucers = 0;
 			int i = random(2);
 			if (i == 0) {
 				saucerx = 0;
-				saucerdir = 2;
+				saucerdir = 1;
 			}
 			else {
 				saucerx = 146;
-				saucerdir = -2;
+				saucerdir = -1;
 			}
 		}
 	}
