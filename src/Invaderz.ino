@@ -607,7 +607,7 @@ void drawbunkers() {
 void saucerappears() {
 	saucertimer--;
 	if (saucertimer <= 0) {
-		saucertimer = 240;
+		saucertimer = 480;
 		if (infoshow == 1 and saucers == -1) {
 			// mainMusic->pause();
 			// removeTrack(mainMusic);
@@ -739,26 +739,27 @@ void dataDisplay()
 	// removeTrack(titleMusic);
 	// removeTrack(invaderDestroyed);
 	// removeTrack(playerDestroyed);
+  
+
 	mp.jb.clear();
 	File file = SD.open(highscoresPath);
 	JsonArray &hiscores = mp.jb.parseArray(file);
 	file.close();
-	const char* nameArray[6];
-	memset(nameArray, 0, 6);
-	uint16_t scoreArray[6];
-	memset(scoreArray, 0, 6);
-	uint16_t hiscoresSize = hiscores.size();
-	for(uint8_t i = 0; i < 6; i++)
-	{
-		for(JsonObject& element:hiscores)
-		{
-			if(element["Rank"] == i)
-			{
-				nameArray[i] = element["Name"];
-				scoreArray[i] = element["Score"];
-			}
-		}
-	}
+  char nameArray[6][4];
+  uint16_t scoreArray[6];
+  memset(scoreArray, 0, 6);
+  uint16_t hiscoresSize = hiscores.size();
+  for(uint8_t i = 0; i < 6; i++)
+  {
+    for(JsonObject& element:hiscores)
+    {
+      if(element["Rank"] == i)
+      {
+        strncpy(nameArray[i], element["Name"], 4);
+        scoreArray[i] = element["Score"];
+      }
+    }
+  }
 	while(1)
 	{
 		mp.display.fillScreen(TFT_BLACK);
@@ -771,7 +772,7 @@ void dataDisplay()
 		for (int i = 1; i < 6;i++)
 		{
 			mp.display.setCursor(24, i * 20);
-			if(i <= hiscores.size())
+			if(i <= hiscoresSize)
 				mp.display.printf("%d.   %.3s    %04d", i, nameArray[i], scoreArray[i]);
 			else
 				mp.display.printf("%d.    ---   ----", i);
@@ -975,7 +976,6 @@ void setup() {
 	destroyed->setVolume(mp.oscillatorVolumeList[mp.mediaVolume]/2);
 	addOscillator(shoot);
 	addOscillator(destroyed);
-
 	// shoot->play();
   // shootSound->setVolume(256*mp.volume/14);
   // invaderDestroyed->setVolume(256*mp.volume/14);
@@ -1081,63 +1081,67 @@ void loop() {
 				if(element["Rank"] == 1)
 					tempScore = element["Score"].as<int>();
 			}
+      hiscores.end();
 			Serial.println("HERE");
 			delay(5);
 			
 			enterInitials();
+      file = SD.open(highscoresPath);
+      mp.jb.clear();
+			JsonArray &hiscores2 = mp.jb.parseArray(file);
+			file.close();
 			JsonObject &newHiscore = mp.jb.createObject();
 			newHiscore["Name"] = name;
 			newHiscore["Score"] = score;
 			newHiscore["Rank"] = 1;
 
-			if(savePresent && hiscores.size() > 0)
+			if(savePresent && hiscores2.size() > 0)
 			{
 				newHiscore["Rank"] = 999;
-				Serial.println(hiscores.size());
-				uint16_t tempSize = hiscores.size();
+				Serial.println(hiscores2.size());
+				uint16_t tempSize = hiscores2.size();
 				for (int16_t i = 0; i < tempSize;i++)//searching for a place in the leaderboard for our new score
 				{
 					Serial.printf("i: %d\n", i);
-					Serial.println((uint16_t)(hiscores[i]["Rank"]));
-					Serial.println((uint16_t)(hiscores[i]["Score"]));
+					Serial.println((uint16_t)(hiscores2[i]["Rank"]));
+					Serial.println((uint16_t)(hiscores2[i]["Score"]));
 					delay(5);
-					if(score >= (uint16_t)(hiscores[i]["Score"]))
+					if(score >= (uint16_t)(hiscores2[i]["Score"]))
 					{
 					Serial.println("ENTERED");
 					delay(5);
-					if((uint16_t)(newHiscore["Rank"]) >  (uint16_t)(hiscores[i]["Rank"]))
+					if((uint16_t)(newHiscore["Rank"]) >  (uint16_t)(hiscores2[i]["Rank"]))
 					{
-						newHiscore["Rank"] = (uint16_t)(hiscores[i]["Rank"]);
+						newHiscore["Rank"] = (uint16_t)(hiscores2[i]["Rank"]);
 					}
 					JsonObject &tempObject = mp.jb.createObject();
-					tempObject["Name"] = (const char *)(hiscores[i]["Name"]);
-					tempObject["Score"] = (uint16_t)(hiscores[i]["Score"]);
-					tempObject["Rank"] = (uint16_t)(hiscores[i]["Rank"]) + 1;
+					tempObject["Name"] = (const char *)(hiscores2[i]["Name"]);
+					tempObject["Score"] = (uint16_t)(hiscores2[i]["Score"]);
+					tempObject["Rank"] = (uint16_t)(hiscores2[i]["Rank"]) + 1;
 					tempObject.prettyPrintTo(Serial);
 					delay(5);
-					hiscores.remove(i);
-					hiscores.add(tempObject);
+					hiscores2.remove(i);
+					hiscores2.add(tempObject);
 					tempSize--;
 					i--;
 					}
 					else
 					{
-					if(newHiscore["Rank"] <= (uint16_t)(hiscores[i]["Rank"]) || newHiscore["Rank"] == 999)
-						newHiscore["Rank"] = (uint16_t)(hiscores[i]["Rank"]) + 1;
+					if(newHiscore["Rank"] <= (uint16_t)(hiscores2[i]["Rank"]) || newHiscore["Rank"] == 999)
+						newHiscore["Rank"] = (uint16_t)(hiscores2[i]["Rank"]) + 1;
 					}
 				}
 			}
-
-			hiscores.add(newHiscore);
+			hiscores2.add(newHiscore);
 			file = SD.open(highscoresPath, "w");
-			hiscores.prettyPrintTo(file);
+			hiscores2.prettyPrintTo(file);
 			file.close();
 			// mp.saveJSONtoSAV(highscoresPath, hiscores);
 			// addTrack(titleMusic);
 			// titleMusic->play();
 			// titleMusic->setRepeat(1);
 			while(!mp.update());
-				dataDisplay();	
+      dataDisplay();
 			gamestatus="title";
 		}
 	}
