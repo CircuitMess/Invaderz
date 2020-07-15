@@ -26,8 +26,8 @@ Also using code for star field effect from [dfm's Star Field](https://github.com
 
 **YouTube** - https://www.youtube.com/channel/UCVUvt1CeoZpCSnwg3oBMsOQ
 
-Copyright © 2019 CircuitMess
+Copyright © 2020 CircuitMess
 
-Licensed under [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+Licensed under [MIT license](https://opensource.org/licenses/MIT)
 
 
